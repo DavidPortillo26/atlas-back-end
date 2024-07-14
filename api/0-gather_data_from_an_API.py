@@ -3,10 +3,12 @@
 import requests
 from sys import argv
 
+
 def get_employee_data(employee_id, api_base):
     user_response = requests.get(f"{api_base}users/{employee_id}")
     tasks_response = requests.get(f"{api_base}todos?userId={employee_id}")
     return user_response.json(), tasks_response.json()
+
 
 def print_completed_tasks(employee_name, tasks):
     completed_tasks = [task for task in tasks if task.get("completed")]
@@ -15,6 +17,7 @@ def print_completed_tasks(employee_name, tasks):
     ))
     for task in completed_tasks:
         print("\t " + task.get("title"))
+
 
 if __name__ == "__main__":
     if len(argv) != 2:
