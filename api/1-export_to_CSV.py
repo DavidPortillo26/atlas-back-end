@@ -44,8 +44,8 @@ def main():
 
     filename = f"{employee_id}.csv"
     with open(filename, "w", newline='') as file:
-        writer = csv.DictWriter(file, 
-        fieldnames=csv_headers, quoting=csv.QUOTE_ALL)
+        writer = csv.DictWriter(file,
+            fieldnames=csv_headers, quoting=csv.QUOTE_ALL)
         writer.writeheader()
         writer.writerows(data_dicts)
 
