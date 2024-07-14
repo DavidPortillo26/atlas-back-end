@@ -1,55 +1,35 @@
 #!/usr/bin/python3
-"""Creates a CSV from fake user data using the JSON Placeholder API."""
-import csv
-import requests
+
+"""
+Python script that exports data in the CSV format
+"""
+
+from requests import get
 from sys import argv
-
-
-def fetch_data(url):
-    response = requests.get(url)
-    return response.json()
-
-
-def main():
-    if len(argv) != 2:
-        print("Usage: ./script_name.py <employee_id>")
-        exit(1)
-
-    employee_id = argv[1]
-    api = 'https://jsonplaceholder.typicode.com/'
-
-    user_url = f"{api}users/{employee_id}"
-    todos_url = f"{api}todos?userId={employee_id}"
-
-    employee = fetch_data(user_url)
-    tasks = fetch_data(todos_url)
-
-    username = employee.get("username")
-
-    csv_headers = [
-        "USER_ID",
-        "USERNAME",
-        "TASK_COMPLETED_STATUS",
-        "TASK_TITLE"
-    ]
-
-    data_dicts = [
-        {
-            "USER_ID": employee_id,
-            "USERNAME": username,
-            "TASK_COMPLETED_STATUS": task.get("completed"),
-            "TASK_TITLE": task.get("title")
-        } for task in tasks
-    ]
-
-    filename = f"{employee_id}.csv"
-    with open(filename, "w", newline='') as file:
-        writer = csv.DictWriter(
-            file,
-            fieldnames=csv_headers, quoting=csv.QUOTE_ALL)
-        writer.writeheader()
-        writer.writerows(data_dicts)
-
+import csv
 
 if __name__ == "__main__":
-    main()
+    response = get('https://jsonplaceholder.typicode.com/todos/')
+    data = response.json()
+
+    row = []
+    response2 = get('https://jsonplaceholder.typicode.com/users')
+    data2 = response2.json()
+
+    for i in data2:
+        if i['id'] == int(argv[1]):
+            employee = i['username']
+
+    with open(argv[1] + '.csv', 'w', newline='') as file:
+        writ = csv.writer(file, quoting=csv.QUOTE_ALL)
+
+        for i in data:
+
+            row = []
+            if i['userId'] == int(argv[1]):
+                row.append(i['userId'])
+                row.append(employee)
+                row.append(i['completed'])
+                row.append(i['title'])
+
+                writ.writerow(row)
