@@ -1,37 +1,30 @@
 #!/usr/bin/python3
-
-"""
-Python script that, using a REST API, for a given employee ID,
-returns information about his/her TODO list progress.
-"""
-
-from requests import get
+"""Displays fake user data using the JSON Placeholder API."""
+import requests
 from sys import argv
 
+def get_employee_data(employee_id, api_base):
+    user_response = requests.get(f"{api_base}users/{employee_id}")
+    tasks_response = requests.get(f"{api_base}todos?userId={employee_id}")
+    return user_response.json(), tasks_response.json()
+
+def print_completed_tasks(employee_name, tasks):
+    completed_tasks = [task for task in tasks if task.get("completed")]
+    print("Employee {} is done with tasks({}/{}):".format(
+        employee_name, len(completed_tasks), len(tasks)
+    ))
+    for task in completed_tasks:
+        print("\t " + task.get("title"))
 
 if __name__ == "__main__":
-    response = get('https://jsonplaceholder.typicode.com/todos/')
-    data = response.json()
-    completed = 0
-    total = 0
-    tasks = []
-    response2 = get('https://jsonplaceholder.typicode.com/users')
-    data2 = response2.json()
+    if len(argv) != 2:
+        print("Usage: ./script_name.py <employee_id>")
+        exit(1)
 
-    for i in data2:
-        if i.get('id') == int(argv[1]):
-            employee = i.get('name')
+    employee_id = argv[1]
+    api = 'https://jsonplaceholder.typicode.com/'
 
-    for i in data:
-        if i.get('userId') == int(argv[1]):
-            total += 1
+    employee, tasks = get_employee_data(employee_id, api)
+    employee_name = employee.get("name")
 
-            if i.get('completed') is True:
-                completed += 1
-                tasks.append(i.get('title'))
-
-    print("Employee {} is done with tasks({}/{}):".format(employee, completed,
-                                                          total))
-
-    for i in tasks:
-        print("\t {}".format(i))
+    print_completed_tasks(employee_name, tasks)
